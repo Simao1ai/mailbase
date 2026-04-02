@@ -1,0 +1,21 @@
+Build a full-stack email platform called MailBase using React (Vite) for the frontend and Express.js with PostgreSQL and Drizzle ORM for the backend. Use the Resend npm package for email sending.
+Project structure: monorepo with /server and /client folders. Run both with concurrently from the root.
+Database schema (Drizzle): Create these tables — domains (id, business, businessLabel, domain, fromName, fromEmail, resendDomainId, status, dnsRecords jsonb, isDefault, createdAt, verifiedAt), contacts (id, business, email, firstName, lastName, tags text array, unsubscribed boolean, unsubscribeToken, metadata jsonb, createdAt), lists (id, business, name, description, createdAt), list_contacts (id, listId, contactId, addedAt), templates (id, business, name, subject, htmlContent, textContent, createdAt, updatedAt), campaigns (id, business, domainId, name, subject, htmlContent, textContent, fromName, fromEmail, listId, status, sentAt, totalRecipients, createdAt), email_events (id, campaignId, contactId, messageId, event, url, ipAddress, userAgent, occurredAt), transactional_emails (id, business, domainId, toEmail, subject, type, status, messageId, sentAt).
+Backend API routes:
+	∙	/api/domains — CRUD. POST registers domain with Resend API (POST https://api.resend.com/domains), saves DNS records returned. POST /:id/verify calls Resend to check verification status.
+	∙	/api/contacts — CRUD + bulk import (POST /bulk). Support search via query param.
+	∙	/api/lists — CRUD. GET /:id/contacts returns contacts in list. POST /:id/contacts adds contactIds to list.
+	∙	/api/templates — CRUD.
+	∙	/api/campaigns — CRUD. POST /:id/send fetches all non-unsubscribed contacts from the campaign’s list, injects a 1x1 tracking pixel (/track/open/:campaignId/:contactId) and replaces all href links with /track/click/:campaignId/:contactId?url=encoded redirect, appends unsubscribe footer with /unsubscribe/:token, then sends via Resend with 50ms delay between recipients. Runs non-blocking (respond immediately, send in background).
+	∙	/api/analytics/overview — aggregate emailEvents stats (sent/opened/clicked/bounced) for a business over N days. /api/analytics/campaign/:id — per-campaign stats.
+	∙	/api/transactional/send — accepts business, type, toEmail, data object. Has hardcoded HTML templates for: equifind→case_update, equifind→welcome, inspection→report_ready, inspection→appointment_confirm.
+	∙	/track/open/:campaignId/:contactId — returns 1x1 GIF, records opened event.
+	∙	/track/click/:campaignId/:contactId?url= — records clicked event, redirects to url.
+	∙	/unsubscribe/:token — sets contact.unsubscribed=true, returns HTML confirmation page.
+Frontend (React + Vite): Dark theme (#07080f background, #3effa0 accent for Equifind, #ff6a3d for Inspection). Use Outfit font from Google Fonts. Sidebar navigation with 6 pages:
+	1.	Overview — stat cards + area chart (recharts) of sends/opens last 14 days
+	2.	Domains — list domains with status badges, expandable DNS record tables with copy buttons, Add Domain form, Verify button per domain
+	3.	Campaigns — list campaigns with status, New Campaign form (pick business, domain, list, subject, HTML content), Send button for drafts
+	4.	Contacts — searchable table, Add Contact form, bulk CSV import, unsubscribe toggle
+	5.	Analytics — 7/14/30 day toggle, line chart + bounce bar chart using recharts
+	6.	Transactional — form to trigger emails by type with a sent log below

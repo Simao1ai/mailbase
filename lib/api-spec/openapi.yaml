@@ -1,0 +1,1278 @@
+openapi: 3.1.0
+info:
+  title: Api
+  version: 0.1.0
+  description: MailBase API specification
+servers:
+  - url: /api
+    description: Base API path
+tags:
+  - name: health
+    description: Health operations
+  - name: domains
+    description: Domain management
+  - name: contacts
+    description: Contact management
+  - name: lists
+    description: List management
+  - name: templates
+    description: Template management
+  - name: campaigns
+    description: Campaign management
+  - name: analytics
+    description: Analytics and reporting
+  - name: transactional
+    description: Transactional email sending
+paths:
+  /healthz:
+    get:
+      operationId: healthCheck
+      tags: [health]
+      summary: Health check
+      responses:
+        "200":
+          description: Healthy
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/HealthStatus"
+
+  # Domains
+  /domains:
+    get:
+      operationId: getDomains
+      tags: [domains]
+      summary: List all domains
+      responses:
+        "200":
+          description: List of domains
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Domain"
+    post:
+      operationId: createDomain
+      tags: [domains]
+      summary: Register a new domain
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateDomainInput"
+      responses:
+        "201":
+          description: Domain created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Domain"
+
+  /domains/{id}:
+    get:
+      operationId: getDomain
+      tags: [domains]
+      summary: Get a domain by ID
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Domain
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Domain"
+    put:
+      operationId: updateDomain
+      tags: [domains]
+      summary: Update a domain
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpdateDomainInput"
+      responses:
+        "200":
+          description: Domain updated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Domain"
+    delete:
+      operationId: deleteDomain
+      tags: [domains]
+      summary: Delete a domain
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "204":
+          description: Domain deleted
+
+  /domains/{id}/verify:
+    post:
+      operationId: verifyDomain
+      tags: [domains]
+      summary: Verify domain DNS records with Resend
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Verification result
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Domain"
+
+  # Contacts
+  /contacts:
+    get:
+      operationId: getContacts
+      tags: [contacts]
+      summary: List contacts
+      parameters:
+        - name: search
+          in: query
+          schema:
+            type: string
+        - name: business
+          in: query
+          schema:
+            type: string
+      responses:
+        "200":
+          description: List of contacts
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Contact"
+    post:
+      operationId: createContact
+      tags: [contacts]
+      summary: Create a contact
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateContactInput"
+      responses:
+        "201":
+          description: Contact created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Contact"
+
+  /contacts/bulk:
+    post:
+      operationId: bulkImportContacts
+      tags: [contacts]
+      summary: Bulk import contacts
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/BulkImportContactsInput"
+      responses:
+        "200":
+          description: Import result
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/BulkImportResult"
+
+  /contacts/{id}:
+    get:
+      operationId: getContact
+      tags: [contacts]
+      summary: Get a contact by ID
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Contact
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Contact"
+    put:
+      operationId: updateContact
+      tags: [contacts]
+      summary: Update a contact
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpdateContactInput"
+      responses:
+        "200":
+          description: Contact updated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Contact"
+    delete:
+      operationId: deleteContact
+      tags: [contacts]
+      summary: Delete a contact
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "204":
+          description: Contact deleted
+
+  # Lists
+  /lists:
+    get:
+      operationId: getLists
+      tags: [lists]
+      summary: List all lists
+      parameters:
+        - name: business
+          in: query
+          schema:
+            type: string
+      responses:
+        "200":
+          description: List of lists
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/ContactList"
+    post:
+      operationId: createList
+      tags: [lists]
+      summary: Create a list
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateListInput"
+      responses:
+        "201":
+          description: List created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ContactList"
+
+  /lists/{id}:
+    get:
+      operationId: getList
+      tags: [lists]
+      summary: Get a list by ID
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: List
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ContactList"
+    put:
+      operationId: updateList
+      tags: [lists]
+      summary: Update a list
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpdateListInput"
+      responses:
+        "200":
+          description: List updated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ContactList"
+    delete:
+      operationId: deleteList
+      tags: [lists]
+      summary: Delete a list
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "204":
+          description: List deleted
+
+  /lists/{id}/contacts:
+    get:
+      operationId: getListContacts
+      tags: [lists]
+      summary: Get contacts in a list
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Contacts in list
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Contact"
+    post:
+      operationId: addContactsToList
+      tags: [lists]
+      summary: Add contacts to a list
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/AddContactsToListInput"
+      responses:
+        "200":
+          description: Contacts added
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/MessageResult"
+
+  # Templates
+  /templates:
+    get:
+      operationId: getTemplates
+      tags: [templates]
+      summary: List templates
+      parameters:
+        - name: business
+          in: query
+          schema:
+            type: string
+      responses:
+        "200":
+          description: List of templates
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Template"
+    post:
+      operationId: createTemplate
+      tags: [templates]
+      summary: Create a template
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateTemplateInput"
+      responses:
+        "201":
+          description: Template created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Template"
+
+  /templates/{id}:
+    get:
+      operationId: getTemplate
+      tags: [templates]
+      summary: Get a template by ID
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Template
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Template"
+    put:
+      operationId: updateTemplate
+      tags: [templates]
+      summary: Update a template
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpdateTemplateInput"
+      responses:
+        "200":
+          description: Template updated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Template"
+    delete:
+      operationId: deleteTemplate
+      tags: [templates]
+      summary: Delete a template
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "204":
+          description: Template deleted
+
+  # Campaigns
+  /campaigns:
+    get:
+      operationId: getCampaigns
+      tags: [campaigns]
+      summary: List campaigns
+      parameters:
+        - name: business
+          in: query
+          schema:
+            type: string
+      responses:
+        "200":
+          description: List of campaigns
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Campaign"
+    post:
+      operationId: createCampaign
+      tags: [campaigns]
+      summary: Create a campaign
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateCampaignInput"
+      responses:
+        "201":
+          description: Campaign created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Campaign"
+
+  /campaigns/{id}:
+    get:
+      operationId: getCampaign
+      tags: [campaigns]
+      summary: Get a campaign by ID
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Campaign
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Campaign"
+    put:
+      operationId: updateCampaign
+      tags: [campaigns]
+      summary: Update a campaign
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpdateCampaignInput"
+      responses:
+        "200":
+          description: Campaign updated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Campaign"
+    delete:
+      operationId: deleteCampaign
+      tags: [campaigns]
+      summary: Delete a campaign
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "204":
+          description: Campaign deleted
+
+  /campaigns/{id}/send:
+    post:
+      operationId: sendCampaign
+      tags: [campaigns]
+      summary: Send a campaign to its list
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Campaign send initiated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/MessageResult"
+
+  # Analytics
+  /analytics/overview:
+    get:
+      operationId: getAnalyticsOverview
+      tags: [analytics]
+      summary: Get aggregate analytics overview
+      parameters:
+        - name: business
+          in: query
+          schema:
+            type: string
+        - name: days
+          in: query
+          schema:
+            type: integer
+            default: 14
+      responses:
+        "200":
+          description: Analytics overview
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AnalyticsOverview"
+
+  /analytics/campaign/{id}:
+    get:
+      operationId: getCampaignAnalytics
+      tags: [analytics]
+      summary: Get analytics for a specific campaign
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Campaign analytics
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CampaignAnalytics"
+
+  # Transactional
+  /transactional/send:
+    post:
+      operationId: sendTransactional
+      tags: [transactional]
+      summary: Send a transactional email
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/SendTransactionalInput"
+      responses:
+        "200":
+          description: Email sent
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/MessageResult"
+
+  /transactional/log:
+    get:
+      operationId: getTransactionalLog
+      tags: [transactional]
+      summary: Get transactional send log
+      parameters:
+        - name: business
+          in: query
+          schema:
+            type: string
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            default: 50
+      responses:
+        "200":
+          description: Transactional send log
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/TransactionalLog"
+
+components:
+  schemas:
+    HealthStatus:
+      type: object
+      properties:
+        status:
+          type: string
+      required:
+        - status
+
+    Domain:
+      type: object
+      properties:
+        id:
+          type: integer
+        business:
+          type: string
+        businessLabel:
+          type: string
+        domain:
+          type: string
+        fromName:
+          type: string
+        fromEmail:
+          type: string
+        resendDomainId:
+          type: string
+          nullable: true
+        status:
+          type: string
+          enum: [pending, verified, failed]
+        dnsRecords:
+          type: array
+          nullable: true
+          items:
+            $ref: "#/components/schemas/DnsRecord"
+        isDefault:
+          type: boolean
+        createdAt:
+          type: string
+          format: date-time
+        verifiedAt:
+          type: string
+          format: date-time
+          nullable: true
+      required:
+        - id
+        - business
+        - businessLabel
+        - domain
+        - fromName
+        - fromEmail
+        - status
+        - isDefault
+        - createdAt
+
+    DnsRecord:
+      type: object
+      properties:
+        record:
+          type: string
+        name:
+          type: string
+        type:
+          type: string
+        ttl:
+          type: string
+        status:
+          type: string
+        value:
+          type: string
+        priority:
+          type: integer
+          nullable: true
+      required:
+        - record
+        - name
+        - type
+        - ttl
+        - status
+        - value
+
+    CreateDomainInput:
+      type: object
+      properties:
+        business:
+          type: string
+        businessLabel:
+          type: string
+        domain:
+          type: string
+        fromName:
+          type: string
+        fromEmail:
+          type: string
+        isDefault:
+          type: boolean
+      required:
+        - business
+        - businessLabel
+        - domain
+        - fromName
+        - fromEmail
+
+    UpdateDomainInput:
+      type: object
+      properties:
+        fromName:
+          type: string
+        fromEmail:
+          type: string
+        isDefault:
+          type: boolean
+        businessLabel:
+          type: string
+
+    Contact:
+      type: object
+      properties:
+        id:
+          type: integer
+        business:
+          type: string
+        email:
+          type: string
+        firstName:
+          type: string
+          nullable: true
+        lastName:
+          type: string
+          nullable: true
+        tags:
+          type: array
+          items:
+            type: string
+        unsubscribed:
+          type: boolean
+        unsubscribeToken:
+          type: string
+        metadata:
+          type: object
+          nullable: true
+        createdAt:
+          type: string
+          format: date-time
+      required:
+        - id
+        - business
+        - email
+        - tags
+        - unsubscribed
+        - unsubscribeToken
+        - createdAt
+
+    CreateContactInput:
+      type: object
+      properties:
+        business:
+          type: string
+        email:
+          type: string
+        firstName:
+          type: string
+        lastName:
+          type: string
+        tags:
+          type: array
+          items:
+            type: string
+        metadata:
+          type: object
+      required:
+        - business
+        - email
+
+    UpdateContactInput:
+      type: object
+      properties:
+        email:
+          type: string
+        firstName:
+          type: string
+        lastName:
+          type: string
+        tags:
+          type: array
+          items:
+            type: string
+        unsubscribed:
+          type: boolean
+        metadata:
+          type: object
+
+    BulkImportContactsInput:
+      type: object
+      properties:
+        business:
+          type: string
+        contacts:
+          type: array
+          items:
+            $ref: "#/components/schemas/CreateContactInput"
+      required:
+        - business
+        - contacts
+
+    BulkImportResult:
+      type: object
+      properties:
+        imported:
+          type: integer
+        skipped:
+          type: integer
+        errors:
+          type: array
+          items:
+            type: string
+      required:
+        - imported
+        - skipped
+        - errors
+
+    ContactList:
+      type: object
+      properties:
+        id:
+          type: integer
+        business:
+          type: string
+        name:
+          type: string
+        description:
+          type: string
+          nullable: true
+        contactCount:
+          type: integer
+        createdAt:
+          type: string
+          format: date-time
+      required:
+        - id
+        - business
+        - name
+        - contactCount
+        - createdAt
+
+    CreateListInput:
+      type: object
+      properties:
+        business:
+          type: string
+        name:
+          type: string
+        description:
+          type: string
+      required:
+        - business
+        - name
+
+    UpdateListInput:
+      type: object
+      properties:
+        name:
+          type: string
+        description:
+          type: string
+
+    AddContactsToListInput:
+      type: object
+      properties:
+        contactIds:
+          type: array
+          items:
+            type: integer
+      required:
+        - contactIds
+
+    Template:
+      type: object
+      properties:
+        id:
+          type: integer
+        business:
+          type: string
+        name:
+          type: string
+        subject:
+          type: string
+        htmlContent:
+          type: string
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+      required:
+        - id
+        - business
+        - name
+        - subject
+        - htmlContent
+        - createdAt
+        - updatedAt
+
+    CreateTemplateInput:
+      type: object
+      properties:
+        business:
+          type: string
+        name:
+          type: string
+        subject:
+          type: string
+        htmlContent:
+          type: string
+      required:
+        - business
+        - name
+        - subject
+        - htmlContent
+
+    UpdateTemplateInput:
+      type: object
+      properties:
+        name:
+          type: string
+        subject:
+          type: string
+        htmlContent:
+          type: string
+
+    Campaign:
+      type: object
+      properties:
+        id:
+          type: integer
+        business:
+          type: string
+        name:
+          type: string
+        subject:
+          type: string
+        domainId:
+          type: integer
+        listId:
+          type: integer
+        templateId:
+          type: integer
+          nullable: true
+        htmlContent:
+          type: string
+        status:
+          type: string
+          enum: [draft, sending, sent, failed]
+        sentAt:
+          type: string
+          format: date-time
+          nullable: true
+        recipientCount:
+          type: integer
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+      required:
+        - id
+        - business
+        - name
+        - subject
+        - domainId
+        - listId
+        - htmlContent
+        - status
+        - recipientCount
+        - createdAt
+        - updatedAt
+
+    CreateCampaignInput:
+      type: object
+      properties:
+        business:
+          type: string
+        name:
+          type: string
+        subject:
+          type: string
+        domainId:
+          type: integer
+        listId:
+          type: integer
+        templateId:
+          type: integer
+        htmlContent:
+          type: string
+      required:
+        - business
+        - name
+        - subject
+        - domainId
+        - listId
+        - htmlContent
+
+    UpdateCampaignInput:
+      type: object
+      properties:
+        name:
+          type: string
+        subject:
+          type: string
+        domainId:
+          type: integer
+        listId:
+          type: integer
+        templateId:
+          type: integer
+        htmlContent:
+          type: string
+
+    AnalyticsOverview:
+      type: object
+      properties:
+        totalSent:
+          type: integer
+        totalOpened:
+          type: integer
+        totalClicked:
+          type: integer
+        totalBounced:
+          type: integer
+        openRate:
+          type: number
+        clickRate:
+          type: number
+        bounceRate:
+          type: number
+        dailyStats:
+          type: array
+          items:
+            $ref: "#/components/schemas/DailyStat"
+      required:
+        - totalSent
+        - totalOpened
+        - totalClicked
+        - totalBounced
+        - openRate
+        - clickRate
+        - bounceRate
+        - dailyStats
+
+    DailyStat:
+      type: object
+      properties:
+        date:
+          type: string
+        sent:
+          type: integer
+        opened:
+          type: integer
+        clicked:
+          type: integer
+        bounced:
+          type: integer
+      required:
+        - date
+        - sent
+        - opened
+        - clicked
+        - bounced
+
+    CampaignAnalytics:
+      type: object
+      properties:
+        campaignId:
+          type: integer
+        campaignName:
+          type: string
+        sent:
+          type: integer
+        opened:
+          type: integer
+        clicked:
+          type: integer
+        bounced:
+          type: integer
+        openRate:
+          type: number
+        clickRate:
+          type: number
+        bounceRate:
+          type: number
+        events:
+          type: array
+          items:
+            $ref: "#/components/schemas/EmailEvent"
+      required:
+        - campaignId
+        - campaignName
+        - sent
+        - opened
+        - clicked
+        - bounced
+        - openRate
+        - clickRate
+        - bounceRate
+        - events
+
+    EmailEvent:
+      type: object
+      properties:
+        id:
+          type: integer
+        campaignId:
+          type: integer
+        contactId:
+          type: integer
+        type:
+          type: string
+          enum: [sent, opened, clicked, bounced, unsubscribed]
+        metadata:
+          type: object
+          nullable: true
+        createdAt:
+          type: string
+          format: date-time
+      required:
+        - id
+        - campaignId
+        - contactId
+        - type
+        - createdAt
+
+    SendTransactionalInput:
+      type: object
+      properties:
+        business:
+          type: string
+        type:
+          type: string
+        toEmail:
+          type: string
+        data:
+          type: object
+      required:
+        - business
+        - type
+        - toEmail
+        - data
+
+    TransactionalLog:
+      type: object
+      properties:
+        id:
+          type: integer
+        business:
+          type: string
+        type:
+          type: string
+        toEmail:
+          type: string
+        status:
+          type: string
+          enum: [sent, failed]
+        error:
+          type: string
+          nullable: true
+        sentAt:
+          type: string
+          format: date-time
+      required:
+        - id
+        - business
+        - type
+        - toEmail
+        - status
+        - sentAt
+
+    MessageResult:
+      type: object
+      properties:
+        message:
+          type: string
+      required:
+        - message

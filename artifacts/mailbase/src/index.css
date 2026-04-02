@@ -1,0 +1,108 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&display=swap');
+@import "tailwindcss";
+@import "tw-animate-css";
+@plugin "@tailwindcss/typography";
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+
+  --color-popover: var(--card);
+  --color-popover-foreground: var(--card-foreground);
+
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+
+  --color-chart-1: var(--chart-1);
+  --color-chart-2: var(--chart-2);
+  --color-chart-3: var(--chart-3);
+  --color-chart-4: var(--chart-4);
+  --color-chart-5: var(--chart-5);
+
+  --font-sans: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+
+  --radius-sm: calc(var(--radius) - 2px);
+  --radius-md: var(--radius);
+  --radius-lg: calc(var(--radius) + 2px);
+  --radius-xl: calc(var(--radius) + 4px);
+}
+
+:root {
+  /* Page surfaces */
+  --background: #ffffff;
+  --foreground: #1a202c;
+
+  /* Cards */
+  --card: #ffffff;
+  --card-foreground: #1a202c;
+
+  /* Borders & inputs */
+  --border: #e2e8f0;
+  --input: #e2e8f0;
+  --ring: #1a82e2;
+
+  /* Primary — SendGrid blue */
+  --primary: #1a82e2;
+  --primary-foreground: #ffffff;
+
+  /* Secondary */
+  --secondary: #f8fafc;
+  --secondary-foreground: #1a202c;
+
+  /* Muted surfaces */
+  --muted: #f8fafc;
+  --muted-foreground: #718096;
+
+  /* Accent */
+  --accent: #edf2f7;
+  --accent-foreground: #1a202c;
+
+  /* Destructive */
+  --destructive: #e53e3e;
+  --destructive-foreground: #ffffff;
+
+  /* Charts */
+  --chart-1: #1a82e2;
+  --chart-2: #38a169;
+  --chart-3: #d69e2e;
+  --chart-4: #e53e3e;
+  --chart-5: #805ad5;
+
+  /* Sidebar — SendGrid's characteristic muted navy */
+  --sidebar: #294661;
+
+  /* Tight radius like SendGrid */
+  --radius: 0.25rem;
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+  body {
+    @apply font-sans antialiased bg-background text-foreground;
+    font-size: 14px;
+    line-height: 1.5;
+  }
+  h1, h2, h3, h4, h5, h6 {
+    @apply font-semibold text-foreground;
+  }
+}

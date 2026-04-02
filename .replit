@@ -1,0 +1,36 @@
+modules = ["nodejs-24", "postgresql-16"]
+
+[[artifacts]]
+id = "artifacts/api-server"
+
+[[artifacts]]
+id = "artifacts/mockup-sandbox"
+
+[deployment]
+router = "application"
+deploymentTarget = "autoscale"
+
+[deployment.postBuild]
+args = ["pnpm", "store", "prune"]
+env = { "CI" = "true" }
+
+[workflows]
+runButton = "Project"
+
+[agent]
+stack = "PNPM_WORKSPACE"
+expertMode = true
+integrations = ["github:1.0.0"]
+
+[postMerge]
+path = "scripts/post-merge.sh"
+timeoutMs = 20000
+
+[userenv]
+
+[userenv.shared]
+MAILBASE_API_KEY = "mb_live_0f48224b9a544922df1c317d961aca71bfcbf58e9b2936399134c2a5d0a3a4b5"
+VITE_MAILBASE_API_KEY = "mb_live_0f48224b9a544922df1c317d961aca71bfcbf58e9b2936399134c2a5d0a3a4b5"
+
+[nix]
+channel = "stable-25_05"
